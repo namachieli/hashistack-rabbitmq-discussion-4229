@@ -1,0 +1,31 @@
+.DS_Store
+__pycache__/
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+#
+# Terraform
+#
+# Local .terraform directories and files
+.terraform/
+**/.terraform/*
+*.terraform.lock.hcl
+# .tfstate files
+*.tfstate
+*.tfstate.*
+# Crash log files
+crash.log
+crash.*.log
+# Ignore CLI configuration files
+.terraformrc
+terraform.rc
+
+# Probably more?
+

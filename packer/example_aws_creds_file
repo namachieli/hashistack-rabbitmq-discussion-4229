@@ -1,0 +1,6 @@
+# cat ~/.aws/credentials
+[saml]
+aws_access_key_id =
+aws_secret_access_key =
+region = us-west-2
+aws_session_token =
