@@ -29,9 +29,16 @@ job "rabbitmq" {
 
         mount {
           type     = "bind"
+          source   = "local/rabbitmq-env.conf"
+          target   = "/etc/rabbitmq/rabbitmq-env.conf"
+          readonly = true
+        }
+
+        mount {
+          type     = "bind"
           source   = "local/rabbitmq.conf"
           target   = "/etc/rabbitmq/rabbitmq.conf"
-          readonly = false
+          readonly = true
         }
 
         mount {
@@ -46,7 +53,7 @@ job "rabbitmq" {
         RABBITMQ_ERLANG_COOKIE = "ADUMMYSTRINGFORNOW"
         RABBITMQ_DEFAULT_USER  = "test"
         RABBITMQ_DEFAULT_PASS  = "test"
-        # RABBITMQ_USE_LONGNAME  = true # https://github.com/rabbitmq/rabbitmq-server/discussions/4229
+        RABBITMQ_USE_LONGNAME  = true # https://github.com/rabbitmq/rabbitmq-server/discussions/4229
       }
 
       service {
@@ -71,6 +78,16 @@ job "rabbitmq" {
       }
 
       template {
+        destination   = "local/rabbitmq-env.conf"
+        change_mode   = "signal"
+        change_signal = "SIGHUP"
+        data          = <<-EOF
+            USE_LONGNAME=true
+            NODENAME="rabbit@$(hostname).node.consul"
+        EOF
+      }
+
+      template {
         destination   = "local/rabbitmq.conf"
         change_mode   = "signal"
         change_signal = "SIGHUP"
@@ -79,6 +96,8 @@ job "rabbitmq" {
           # https://www.rabbitmq.com/clustering.html#node-names
           # https://www.rabbitmq.com/cluster-formation.html#peer-discovery-consul
           # https://github.com/rabbitmq/rabbitmq-server/blob/master/deps/rabbit/docs/rabbitmq.conf.example
+
+          cluster_partition_handling                      = autoheal
 
           cluster_formation.consul.include_nodes_with_warnings = true
 
@@ -89,8 +108,6 @@ job "rabbitmq" {
           cluster_formation.consul.svc_addr_use_nodename  = true
           cluster_formation.consul.use_longname           = true
           cluster_formation.consul.scheme                 = http
-          cluster_formation.consul.domain_suffix          = consul
-          cluster_partition_handling                      = autoheal
           cluster_formation.node_cleanup.only_log_warning = true
         EOF
       }
